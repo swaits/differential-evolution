@@ -20,7 +20,7 @@ template <unsigned int DIM, unsigned int POP>
 const double DE::Engine<DIM,POP>::DEFAULTRANGE= 1000000.0;
 
 template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::BIGDOUBLE = 9.0e300; // close to max double
+const double DE::Engine<DIM,POP>::BIGDOUBLE = 1.79e308; // close to max double
 
 template <unsigned int DIM, unsigned int POP>
 inline DE::Engine<DIM,POP>::Engine()

@@ -31,6 +31,7 @@ class PolySearch: public DE::Engine<4>
 			{
 				stop = true;
 			}
+			return error;
 		}
 };
 
