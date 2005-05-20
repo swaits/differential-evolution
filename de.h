@@ -50,6 +50,7 @@ namespace DE
 
 		static const double DEFAULTSCALE;
 		static const double DEFAULTCROSSOVER;
+		static const double DEFAULTRANGE;
 		static const double BIGDOUBLE;
 
 

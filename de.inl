@@ -17,7 +17,10 @@ template <unsigned int DIM, unsigned int POP>
 const double DE::Engine<DIM,POP>::DEFAULTCROSSOVER = 1.0;
 
 template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::BIGDOUBLE = 1.0e30;
+const double DE::Engine<DIM,POP>::DEFAULTRANGE= 1000000.0;
+
+template <unsigned int DIM, unsigned int POP>
+const double DE::Engine<DIM,POP>::BIGDOUBLE = 9.0e300; // close to max double
 
 template <unsigned int DIM, unsigned int POP>
 inline DE::Engine<DIM,POP>::Engine()
@@ -27,7 +30,7 @@ inline DE::Engine<DIM,POP>::Engine()
 
 	for ( unsigned int i=0;i<DIM;i++ )
 	{
-		this->minimum[i] = -BIGDOUBLE;
+		this->minimum[i] = -DEFAULTRANGE;
 		this->maximum[i] = -(this->minimum[i]);
 	}
 
