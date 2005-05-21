@@ -5,51 +5,162 @@ namespace DE
 {
 	
 	
+	/**
+	 * A basic vector class.  Used by the DE::Engine to store genotypes.
+	 */
 	template <unsigned int DIM>
 	class Vector
 	{
 	public:
 
-		// default constructor
+		/**
+		 * Default constructor
+		 */
 		Vector();
 
-		// destructor
+		/**
+		 * Destructor
+		 */
 		~Vector();
 
-		// copy constructor
+		/**
+		 * Copy constructor
+		 * 
+		 * @param other  vector to copy
+		 */
 		Vector(const Vector& other);
 
-		// assignment
+		/**
+		 * Copy assignment
+		 * 
+		 * @param other  vector to copy
+		 * 
+		 * @return self reference
+		 */
 		Vector& operator= (const Vector& other);
 
-		// addition
+
+
+		/**
+		 * Addition update operator
+		 * 
+		 * @param other  vector to add
+		 * 
+		 * @return self reference (after addition)
+		 */
 		Vector& operator+= (const Vector& other);
-		Vector  operator+  (const Vector& other);
 
-		// subtraction
+		/**
+		 * Addition operator
+		 * 
+		 * @param other  vector to add
+		 * 
+		 * @return resultant vector
+		 */
+		Vector operator+  (const Vector& other);
+
+
+		/**
+		 * Subtraction update operator
+		 * 
+		 * @param other  vector to subtract
+		 * 
+		 * @return self reference (after subtraction)
+		 */
 		Vector& operator-= (const Vector& other);
-		Vector  operator-  (const Vector& other);
 
-		// multiply by scalar
+		/**
+		 * Subtraction operator
+		 * 
+		 * @param other  vector to subtract
+		 * 
+		 * @return resultant vector
+		 */
+		Vector operator-  (const Vector& other);
+
+
+		/**
+		 * Multiplication update by scalar operator
+		 * 
+		 * @param multiplier scalar to scale by
+		 * 
+		 * @return self reference (after multiplication)
+		 */
 		Vector& operator*= (const double& multiplier);
+
+		/**
+		 * Multiplication by scalar operator
+		 * 
+		 * @param multiplier scalar to scale by
+		 * 
+		 * @return resultant vector
+		 */
 		Vector  operator*  (const double& multiplier);
 
-		// divide by scalar
+
+		/**
+		 * Division update by a scalar operator
+		 * 
+		 * @param divisor scalar to divide by
+		 * 
+		 * @return self reference (after division)
+		 */
 		Vector& operator/= (const double& divisor);
+
+		/**
+		 * Division by a scalar operator
+		 * 
+		 * @param divisor scalar to divide by
+		 * 
+		 * @return resultant vector
+		 */
 		Vector  operator/  (const double& divisor);
 
-		// element access
-		const double& operator[] (unsigned int i) const;
-		      double& operator[] (unsigned int i);
 
-		// data access
+
+		/**
+		 * Element access operator (const version)
+		 * 
+		 * @param i      index of element to access
+		 * 
+		 * @return const reference to element i
+		 */
+		const double& operator[] (unsigned int i) const;
+
+		/**
+		 * Element access operator
+		 * 
+		 * @param i      index of element to access
+		 * 
+		 * @return const reference to element i
+		 */
+		double& operator[] (unsigned int i);
+
+
+
+		/**
+		 * Access the vector data pointer (const version)
+		 * 
+		 * @return const pointer to vector data, array of doubles
+		 */
 		operator const double* () const;
-		operator       double* ();
+
+		/**
+		 * Access the vector data pointer
+		 * 
+		 * @return pointer to vector data, array of doubles
+		 */
+		operator double* ();
+
+
 
 	private:
 
-		// data lives here
+		/**
+		 * Vector data array
+		 */
 		double tuple[DIM];
+
 	};
 
 
