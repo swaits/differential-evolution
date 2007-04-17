@@ -17,7 +17,7 @@ template <unsigned int DIM, unsigned int POP>
 const double DE::Engine<DIM,POP>::DEFAULTCROSSOVER = 1.0;
 
 template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::DEFAULTRANGE= 1000000.0;
+const double DE::Engine<DIM,POP>::DEFAULTRANGE= 10.0;
 
 template <unsigned int DIM, unsigned int POP>
 const double DE::Engine<DIM,POP>::BIGDOUBLE = 1.79e308; // close to max double
