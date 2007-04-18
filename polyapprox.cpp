@@ -15,7 +15,8 @@ double TargetFunction(double x)
 	//return exp(-x*x);                               // gaussian
 	//return tanh(x);                                 // tanh
 	//return (2.0/(1.0+exp(-x))-1.0);                 // tanh approximation
-	return (x<0.0 ? -1.0 : 1.0) * sqrt(abs(x));     // signed root
+	//return (x<0.0 ? -1.0 : 1.0) * sqrt(abs(x));     // signed root
+	return sin(x);                                  // sin
 }
 
 
@@ -51,7 +52,8 @@ class PolySearch: public DE::Engine<NUM_COEFFICIENTS>
 				double actual = TargetFunction(i);
 
 				// accumulate error^2
-				error += (test-actual)*(test-actual);
+				double e = test - actual;
+				error += e * e;
 
 				// inc test count (divisor to get from SE to MSE)
 				test_count++;
