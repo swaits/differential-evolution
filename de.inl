@@ -17,7 +17,7 @@ template <unsigned int DIM, unsigned int POP>
 const double DE::Engine<DIM,POP>::DEFAULTCROSSOVER = 1.0;
 
 template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::DEFAULTRANGE= 10.0;
+const double DE::Engine<DIM,POP>::DEFAULTRANGE= 100.0;
 
 template <unsigned int DIM, unsigned int POP>
 const double DE::Engine<DIM,POP>::BIGDOUBLE = 1.79e308; // close to max double
@@ -164,7 +164,7 @@ inline bool DE::Engine<DIM,POP>::Solve(unsigned int maxgenerations)
 		for (int candidate=0;candidate<POP && !success;candidate++)
 		{
 			Vector<DIM> trial;
-			MakeTrial_randtobest1bin(candidate,trial);
+			MakeTrial_randtobest1exp(candidate,trial);
 
 			double trialfitness = CalculateError(trial,success);
 
@@ -193,10 +193,10 @@ inline bool DE::Engine<DIM,POP>::Solve(unsigned int maxgenerations)
 template <unsigned int DIM, unsigned int POP>
 inline void DE::Engine<DIM,POP>::Dump(const double& fitness, DE::Vector<DIM>& individual) const
 {
-	printf(" fitness = %60.30f\n",fitness);
+	printf(" fitness = %24.16f\n",fitness);
 	for (unsigned int i=0;i<DIM;i++)
 	{
-		printf("   [%03d] = %60.30f\n",i,individual[i]);
+		printf("   [%03d] = %24.16e\n",i,individual[i]);
 	}
 	printf("\n");
 }

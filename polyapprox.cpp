@@ -4,19 +4,19 @@
 #include "de.h"
 
 // the order of the polynomial (actually the number of coefficients, i.e. 1 = constant, 2 = line, etc.)
-#define NUM_COEFFICIENTS 3
+#define NUM_COEFFICIENTS 6
 
 // the function we're searching for
 double TargetFunction(double x)
 {
-	//return 1.0 / (1.0 + exp(-4.9*x));               // Ken Stanley's NEAT activation
+	return 1.0 / (1.0 + exp(-4.9*x));               // Ken Stanley's NEAT activation
 	//return (1.0 / (1.0 + exp(-4.9*x)) - 0.5) * 2.0; // " " (signed version)
 	//return (1.0 / (1.0 + exp(-x)) - 0.5) * 2.0;     // signed sigmoid
 	//return exp(-x*x);                               // gaussian
 	//return tanh(x);                                 // tanh
 	//return (2.0/(1.0+exp(-x))-1.0);                 // tanh approximation
 	//return (x<0.0 ? -1.0 : 1.0) * sqrt(abs(x));     // signed root
-	return sin(x);                                  // sin
+	//return sin(x);                                  // sin
 }
 
 
@@ -45,7 +45,7 @@ class PolySearch: public DE::Engine<NUM_COEFFICIENTS>
 			unsigned int test_count = 0;
 
 			// accumulate squared error
-			for ( double i=-1.5;i<=1.5;i+=0.01 )
+			for ( double i=-7.9287;i<=7.9287;i+=0.001 )
 			{
 				// test
 				double test   = CalculatePolynomial(i,NUM_COEFFICIENTS,testcase);
@@ -78,6 +78,24 @@ class PolySearch: public DE::Engine<NUM_COEFFICIENTS>
 int main()
 {
 	PolySearch de;
+
+	// setup, adjust from default range
+	de.SetRange(-0.1,0.1);
+
+	// create new population with adjusted range
+	de.Reset();
+
+	// run the DE
 	de.Solve(1000);
+
+	// output winner in polynomial form
+	printf("Best Polynomial Found\n=====================\ny =");
+	for (int i=0;i<NUM_COEFFICIENTS-2;++i)
+	{
+		printf(" %0.16f*x^%d +",de.GetBest()[i],NUM_COEFFICIENTS-1-i);
+	}
+	printf(" %0.16f*x + %0.16f\n",de.GetBest()[NUM_COEFFICIENTS-2],de.GetBest()[NUM_COEFFICIENTS-1]);
+
+	// done
 	return 0;
 }
