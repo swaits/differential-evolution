@@ -4,7 +4,7 @@
 #include "de.h"
 
 // the order of the polynomial (actually the number of coefficients, i.e. 1 = constant, 2 = line, etc.)
-#define NUM_COEFFICIENTS 6
+#define NUM_COEFFICIENTS 8
 
 // the function we're searching for
 double TargetFunction(double x)
@@ -45,7 +45,7 @@ class PolySearch: public DE::Engine<NUM_COEFFICIENTS>
 			unsigned int test_count = 0;
 
 			// accumulate squared error
-			for ( double i=-7.9287;i<=7.9287;i+=0.001 )
+			for ( double i=-1.25;i<=1.25;i+=0.001 )
 			{
 				// test
 				double test   = CalculatePolynomial(i,NUM_COEFFICIENTS,testcase);
@@ -86,7 +86,7 @@ int main()
 	de.Reset();
 
 	// run the DE
-	de.Solve(1000);
+	de.Solve(1500);
 
 	// output winner in polynomial form
 	printf("Best Polynomial Found\n=====================\ny =");

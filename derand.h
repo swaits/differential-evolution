@@ -12,6 +12,8 @@ namespace DE
 	class Random
 	{
 	public:
+
+		Random();
 	
 		void Seed(u32 seed);
 		

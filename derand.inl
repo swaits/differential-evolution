@@ -1,11 +1,16 @@
 #ifndef __derand_inl__
 #define __derand_inl__
 
+#include <ctime>
 
 #if !(defined(__derand_h__))
 #	 error "derand.inl should only be included by derand.h"
 #endif
 
+inline DE::Random::Random()
+{
+	Seed(static_cast<u32>(clock()));
+}
 
 inline void DE::Random::Seed(u32 seed)
 {
