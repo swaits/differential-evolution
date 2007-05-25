@@ -10,43 +10,44 @@
 #endif
 
 
-template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::DEFAULTSCALE = 0.85;
+template <unsigned int DIM, unsigned int POPSIZE>
+const double DE::Engine<DIM,POPSIZE>::DEFAULTSCALE = 0.85;
 
-template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::DEFAULTCROSSOVER = 1.0;
+template <unsigned int DIM, unsigned int POPSIZE>
+const double DE::Engine<DIM,POPSIZE>::DEFAULTCROSSOVER = 1.0;
 
-template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::DEFAULTRANGE= 100.0;
+template <unsigned int DIM, unsigned int POPSIZE>
+const double DE::Engine<DIM,POPSIZE>::DEFAULTRANGE= 0.1;
 
-template <unsigned int DIM, unsigned int POP>
-const double DE::Engine<DIM,POP>::BIGDOUBLE = 1.79e308; // close to max double
+template <unsigned int DIM, unsigned int POPSIZE>
+const double DE::Engine<DIM,POPSIZE>::BIGDOUBLE = 1.79e308; // close to max double
 
-template <unsigned int DIM, unsigned int POP>
-inline DE::Engine<DIM,POP>::Engine()
+template <unsigned int DIM, unsigned int POPSIZE>
+inline DE::Engine<DIM,POPSIZE>::Engine()
 {
+	// set defaults
 	scale     = DEFAULTSCALE;
 	crossover = DEFAULTCROSSOVER;
-
-	for ( unsigned int i=0;i<DIM;i++ )
+	for ( unsigned int i=0;i<DIM;++i )
 	{
-		this->minimum[i] = -DEFAULTRANGE;
-		this->maximum[i] = -(this->minimum[i]);
+		this->mean[i]     = 0.0;
+		this->variance[i] = DEFAULTRANGE;
 	}
 
+	// create an initial population
 	Reset();
 
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline DE::Engine<DIM,POP>::~Engine()
+template <unsigned int DIM, unsigned int POPSIZE>
+inline DE::Engine<DIM,POPSIZE>::~Engine()
 {
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::Reset()
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::Reset()
 {
 	// reset our best
 	bestfitness = BIGDOUBLE;
@@ -56,7 +57,7 @@ inline void DE::Engine<DIM,POP>::Reset()
 	}
 
 	// reset all vectors
-	for ( unsigned int i=0;i<POP;i++ )
+	for ( unsigned int i=0;i<POPSIZE;i++ )
 	{
 		// energy tied for worst
 		fitness[i] = bestfitness;
@@ -64,48 +65,72 @@ inline void DE::Engine<DIM,POP>::Reset()
 		// make a new individual
 		for ( unsigned int j=0;j<DIM;j++ )
 		{
-			population[i][j] = prng.RandDouble(minimum[j],maximum[j]);
+			population[i][j] = prng.RandGaussian(mean[j],variance[j]);
 		}
 	}
 
+	// reset state
+	generation = 0;
+	success    = false;
+
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::SetRange(double minimum, double maximum)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::SetRange(double minimum, double maximum)
 {
 	for (unsigned int i=0;i<DIM;i++)
 	{
-		this->minimum[i] = minimum;
-		this->maximum[i] = maximum;
+		SetRange(i,minimum,maximum);
 	}
 
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::SetRange(const Vector<DIM>& minimum, const Vector<DIM>& maximum)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::SetRange(unsigned int i, double minimum, double maximum)
 {
-	this->minimum = minimum;
-	this->maximum = maximum;
+	if (i<DIM)
+	{
+		this->mean[i]     = (maximum+minimum)/2.0;
+		this->variance[i] = (maximum-minimum)/2.0;
+	}
 
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline const double* DE::Engine<DIM,POP>::GetBest() const
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::SetRange(const Vector<DIM>& minimum, const Vector<DIM>& maximum)
+{
+	for (unsigned int i=0;i<DIM;i++)
+	{
+		SetRange(i,minimum[i],maximum[i]);
+	}
+
+	return;
+}
+
+template <unsigned int DIM, unsigned int POPSIZE>
+inline const double* DE::Engine<DIM,POPSIZE>::GetBest() const
 {
 	return best;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::Select(unsigned int candidate, unsigned int *r1, unsigned int *r2, unsigned int *r3, unsigned int *r4, unsigned int *r5)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::Select(
+	unsigned int candidate,
+	unsigned int *r1,
+	unsigned int *r2,
+	unsigned int *r3,
+	unsigned int *r4,
+	unsigned int *r5
+)
 {
 	if ( r1 )
 	{
 		do
 		{
-			*r1 = prng.RandU32(0,POP-1);
+			*r1 = prng.RandU32(0,POPSIZE-1);
 		}
 		while ( *r1 == candidate );
 	}
@@ -114,7 +139,7 @@ inline void DE::Engine<DIM,POP>::Select(unsigned int candidate, unsigned int *r1
 	{
 		do
 		{
-			*r2 = prng.RandU32(0,POP-1);
+			*r2 = prng.RandU32(0,POPSIZE-1);
 		}
 		while ( (*r2 == candidate) || (*r2 == *r1) );
 	}
@@ -123,7 +148,7 @@ inline void DE::Engine<DIM,POP>::Select(unsigned int candidate, unsigned int *r1
 	{
 		do
 		{
-			*r3 = prng.RandU32(0,POP-1);
+			*r3 = prng.RandU32(0,POPSIZE-1);
 		}
 		while ( (*r3 == candidate) || (*r3 == *r2) || (*r3 == *r1) );
 	}
@@ -132,7 +157,7 @@ inline void DE::Engine<DIM,POP>::Select(unsigned int candidate, unsigned int *r1
 	{
 		do
 		{
-			*r4 = prng.RandU32(0,POP-1);
+			*r4 = prng.RandU32(0,POPSIZE-1);
 		}
 		while ( (*r4 == candidate) || (*r4 == *r3) || (*r4 == *r2) || (*r4 == *r1) );
 	}
@@ -141,7 +166,7 @@ inline void DE::Engine<DIM,POP>::Select(unsigned int candidate, unsigned int *r1
 	{
 		do
 		{
-			*r5 = prng.RandU32(0,POP-1);
+			*r5 = prng.RandU32(0,POPSIZE-1);
 		}
 		while ( (*r5 == candidate) || (*r5 == *r4) || (*r5 == *r3) || (*r5 == *r2) || (*r5 == *r1) );
 	}
@@ -149,49 +174,66 @@ inline void DE::Engine<DIM,POP>::Select(unsigned int candidate, unsigned int *r1
 	return;
 }
 
-// TODO: change this to run one generation at a time???
-template <unsigned int DIM, unsigned int POP>
-inline bool DE::Engine<DIM,POP>::Solve(unsigned int maxgenerations)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline bool DE::Engine<DIM,POPSIZE>::Solve(unsigned int maxgenerations)
 {
-	bool success = false;
-
+	// spawn a new generation
 	Reset();
 
-	for (unsigned int generation=0;generation<maxgenerations && !success;generation++)
+	// run generations until max or success
+	while(!success && generation<maxgenerations)
 	{
-		printf("====== GENERATION %07d =============================================\n\n",generation);
+		success = RunOneGeneration();
+	}
 
-		for (int candidate=0;candidate<POP && !success;candidate++)
+	// output
+	printf("====== RUN COMPLETE       =============================================\n\n");
+	Dump(bestfitness,best);
+
+	// finished
+	return success;
+}
+
+template <unsigned int DIM, unsigned int POPSIZE>
+bool DE::Engine<DIM,POPSIZE>::RunOneGeneration()
+{
+	printf("====== GENERATION %07d =============================================\n\n",++generation);
+
+	// attempt to improve each individual in the population
+	for (int candidate=0;candidate<POPSIZE && !success;candidate++)
+	{
+		// create a new trial individual to test
+		Vector<DIM> trial;
+		MakeTrial_randtobest1exp(candidate,trial);
+
+		// determine fitness of trial individual
+		double trialfitness = CalculateError(trial,success);
+
+		// see if the trial improved current candidate in population
+		if ( trialfitness < fitness[candidate] )
 		{
-			Vector<DIM> trial;
-			MakeTrial_randtobest1exp(candidate,trial);
+			// it did improve, save it
+			fitness[candidate]    = trialfitness;
+			population[candidate] = trial;
 
-			double trialfitness = CalculateError(trial,success);
-
-			if ( trialfitness < fitness[candidate] )
+			// see if it also improved upon our current best
+			if ( trialfitness < bestfitness )
 			{
-				fitness[candidate]    = trialfitness;
-				population[candidate] = trial;
+				// it's better than the best, save it
+				bestfitness = trialfitness;
+				best        = trial;
 
-				if ( trialfitness < bestfitness )
-				{
-					bestfitness = trialfitness;
-					best        = trial;
-					
-					Dump(bestfitness,best);
-				}
+				// output new best
+				Dump(bestfitness,best);
 			}
 		}
 	}
 
-	printf("====== RUN COMPLETE       =============================================\n\n");
-	Dump(bestfitness,best);
-
 	return success;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::Dump(const double& fitness, DE::Vector<DIM>& individual) const
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::Dump(const double& fitness, DE::Vector<DIM>& individual) const
 {
 	printf(" fitness = %24.16f\n",fitness);
 	for (unsigned int i=0;i<DIM;i++)
@@ -201,8 +243,8 @@ inline void DE::Engine<DIM,POP>::Dump(const double& fitness, DE::Vector<DIM>& in
 	printf("\n");
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_best1exp(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_best1exp(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2;
 	unsigned int n;
@@ -220,8 +262,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_best1exp(unsigned int candidate, DE::
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_rand1exp(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_rand1exp(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2, r3;
 	unsigned int n;
@@ -239,8 +281,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_rand1exp(unsigned int candidate, DE::
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_randtobest1exp(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_randtobest1exp(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2;
 	unsigned int n;
@@ -258,8 +300,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_randtobest1exp(unsigned int candidate
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_best2exp(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_best2exp(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2, r3, r4;
 	unsigned int n;
@@ -277,8 +319,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_best2exp(unsigned int candidate, DE::
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_rand2exp(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_rand2exp(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2, r3, r4, r5;
 	unsigned int n;
@@ -296,8 +338,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_rand2exp(unsigned int candidate, DE::
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_best1bin(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_best1bin(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2;
 	unsigned int n;
@@ -318,8 +360,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_best1bin(unsigned int candidate, DE::
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_rand1bin(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_rand1bin(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2, r3;
 	unsigned int n;
@@ -340,8 +382,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_rand1bin(unsigned int candidate, DE::
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_randtobest1bin(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_randtobest1bin(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2;
 	unsigned int n;
@@ -362,8 +404,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_randtobest1bin(unsigned int candidate
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_best2bin(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_best2bin(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2, r3, r4;
 	unsigned int n;
@@ -384,8 +426,8 @@ inline void DE::Engine<DIM,POP>::MakeTrial_best2bin(unsigned int candidate, DE::
 	return;
 }
 
-template <unsigned int DIM, unsigned int POP>
-inline void DE::Engine<DIM,POP>::MakeTrial_rand2bin(unsigned int candidate, DE::Vector<DIM>& trial)
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::MakeTrial_rand2bin(unsigned int candidate, DE::Vector<DIM>& trial)
 {
 	unsigned int r1, r2, r3, r4, r5;
 	unsigned int n;

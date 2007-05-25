@@ -25,6 +25,8 @@ namespace DE
 	
 		double RandDouble();
 		double RandDouble(double min, double max);
+
+		double RandGaussian(double mean, double variance);
 	
 		u32 RandU32();
 		u32 RandU32(u32 min, u32 max);

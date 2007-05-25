@@ -50,6 +50,16 @@ inline double DE::Random::RandDouble(double min, double max)
 	return ( RandDouble() * (max - min) + min );
 }
 
+inline double DE::Random::RandGaussian(double mean, double variance)
+{
+	double sum = 0.0;
+	for (int i=0;i<12;++i)
+	{
+		sum += RandDouble();
+	}
+	return mean + ( variance * ( sum - 6.0 ) );
+}
+
 inline DE::u32 DE::Random::RandU32()
 {
 	return Rand();
