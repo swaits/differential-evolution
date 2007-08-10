@@ -207,7 +207,7 @@ bool DE::Engine<DIM,POPSIZE>::RunOneGeneration()
 		MakeTrial_randtobest1exp(candidate,trial);
 
 		// determine fitness of trial individual
-		double trialfitness = CalculateError(trial,success);
+		double trialfitness = TestFitness(trial,success);
 
 		// see if the trial improved current candidate in population
 		if ( trialfitness < fitness[candidate] )
@@ -447,6 +447,56 @@ inline void DE::Engine<DIM,POPSIZE>::MakeTrial_rand2bin(unsigned int candidate, 
 
 	return;
 }
+
+
+
+
+template <unsigned int DIM, unsigned int POPSIZE>
+inline DE::Engine<DIM,POPSIZE>::ErrorAccumulator::ErrorAccumulator()
+{
+	Clear();
+}
+
+template <unsigned int DIM, unsigned int POPSIZE>
+inline DE::Engine<DIM,POPSIZE>::ErrorAccumulator::~ErrorAccumulator()
+{
+	// empty
+}
+
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::ErrorAccumulator::Clear()
+{
+	num_tests         = 0;
+	sum_error_squared = 0.0;
+	error_rmse        = 0.0; // initial error == zero
+}
+
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::ErrorAccumulator::AddTestCase(double expected, double actual)
+{
+	double e           = expected - actual; // compute error
+	sum_error_squared += e * e;             // add to sum of error^2
+	num_tests         += 1;                 // increment total test count
+	error_rmse         = -1.0;              // mark as dirty
+}
+
+template <unsigned int DIM, unsigned int POPSIZE>
+inline double DE::Engine<DIM,POPSIZE>::ErrorAccumulator::GetRMSE()
+{
+	if ( error_rmse < 0.0 ) // recalculate if set to "dirty"
+		CalculateError();
+
+	return error_rmse;
+}
+
+template <unsigned int DIM, unsigned int POPSIZE>
+inline void DE::Engine<DIM,POPSIZE>::ErrorAccumulator::CalculateError()
+{
+	// convert squared error to root mean squared error
+	error_rmse = sqrt(sum_error_squared / (double)num_tests);
+}
+
+
 
 #endif // __de_inl__
 

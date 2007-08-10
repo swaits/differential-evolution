@@ -39,37 +39,29 @@ class PolySearch: public DE::Engine<NUM_COEFFICIENTS>
 {
 	public:
 		// this method is called by the DE::Engine::Solve() to test a single DE individual
-		double CalculateError(const double testcase[NUM_COEFFICIENTS], bool& stop)
+		double TestFitness(const double testcase[NUM_COEFFICIENTS], bool& stop)
 		{
-			double       error      = 0.0;
-			unsigned int test_count = 0;
+			ErrorAccumulator e;
 
 			// accumulate squared error
 			for ( double i=-1.25;i<=1.25;i+=0.001 )
 			{
 				// test
-				double test   = CalculatePolynomial(i,NUM_COEFFICIENTS,testcase);
-				double actual = TargetFunction(i);
+				double actual   = CalculatePolynomial(i,NUM_COEFFICIENTS,testcase);
+				double expected = TargetFunction(i);
 
-				// accumulate error^2
-				double e = test - actual;
-				error += e * e;
-
-				// inc test count (divisor to get from SE to MSE)
-				test_count++;
+				// accumulate error
+				e.AddTestCase(expected, actual);
 			}
 
-			// convert SE to RMSE
-			error = sqrt(error / (double)test_count);
-
 			// set stop flag if the error is really low
-			if ( error < 0.0000001 )
+			if ( e.GetRMSE() < 0.0000001 )
 			{
 				stop = true;
 			}
 
 			// done
-			return error;
+			return e.GetRMSE();
 		}
 };
 

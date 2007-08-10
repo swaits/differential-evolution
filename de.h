@@ -23,11 +23,34 @@ namespace DE
 		void SetRange(unsigned int i, double minimum, double maximum);
 		void SetRange(const Vector<DIM>& minimum, const Vector<DIM>& maximum);
 		
-		virtual double CalculateError(const double testcase[DIM], bool& stop) = 0;
+		virtual double TestFitness(const double testcase[DIM], bool& stop) = 0;
 
 		void Reset();
 		bool Solve(unsigned int maxgenerations = 1000000000);
 		bool RunOneGeneration();
+
+	public:
+
+		// helper class for accumulating error and calculating
+		// root mean square error
+		class ErrorAccumulator
+		{
+		public:
+			ErrorAccumulator();
+			virtual ~ErrorAccumulator();
+
+			void Clear();
+			void AddTestCase(double expected, double actual);
+			double GetRMSE();
+
+		private:
+
+			void CalculateError();
+
+			unsigned int num_tests;         // # of test cases
+			double       sum_error_squared; // sum of error^2
+			double       error_rmse;        // root mean square error (-1 == "dirty" flag)
+		};
 
 	private:
 
