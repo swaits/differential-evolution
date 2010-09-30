@@ -3,6 +3,7 @@
 
 
 #include <cstdio>
+#include <cmath>
 
 
 #if !(defined(__de_h__))
@@ -493,7 +494,7 @@ template <unsigned int DIM, unsigned int POPSIZE>
 inline void DE::Engine<DIM,POPSIZE>::ErrorAccumulator::CalculateError()
 {
 	// convert squared error to root mean squared error
-	error_rmse = sqrt(sum_error_squared / (double)num_tests);
+	error_rmse = ::sqrt(sum_error_squared / (double)num_tests);
 }
 
 
