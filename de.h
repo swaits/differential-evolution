@@ -1,3 +1,48 @@
+/*
+The MIT License
+
+Copyright (c) 2010, Stephen Waits <steve@waits.net>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+
+/*
+ * This is an implementation of Differential Evolution in C++. It's primarily
+ * inline and has no external dependencies.
+ *
+ * DE is a simple, but useful stochastic optimization algorithm created by
+ * Kenneth Price and Rainer Storn. This code is based, in part, on their 
+ * original C version.
+ *
+ * See http://www.icsi.berkeley.edu/~storn/code.html for more information.
+ *
+ * The minimum you need to use this is to:
+ * 1. inherit DE::Engine
+ * 2. implement a concrete version of TestFitness in your derived class
+ * 3. instance your class and run Solve
+ *
+ * See the examples/ directory for some semi-practical examples on how you
+ * might make use of this code.
+ *
+ */
+
 #ifndef __de_h__
 #define __de_h__
 
